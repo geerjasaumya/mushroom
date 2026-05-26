@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>For You, Ganesh 🎶</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rose:        #E8527A;
+      --rose-dark:   #C03060;
+      --rose-light:  #FDE8EF;
+      --rose-text:   #7A1535;
+      --indigo:      #5B6BF8;
+      --indigo-dark: #3A4BD4;
+      --indigo-light:#EEF0FE;
+      --indigo-text: #1E2880;
+      --green:       #22C98A;
+      --green-dark:  #0FA36D;
+      --red:         #E84545;
+      --yellow-bg:   #FFF4E0;
+      --yellow-bd:   #FFD07A;
+      --yellow-txt:  #7A4A00;
+      --text:        #1C1B2E;
+      --text-sub:    #6B6B8E;
+      --bg:          #0D0C1A;
+      --card-bg:     #16152A;
+      --border:      #2A2846;
+      --star1: #FFD700;
+      --star2: #FF6B9D;
+      --star3: #6BCDFF;
+    }
+
+    html, body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: #F0EFF8;
+      font-family: 'Quicksand', sans-serif;
+    }
+
+    /* Anime-style starfield background */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse at 15% 25%, rgba(91,107,248,0.18) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 70%, rgba(232,82,122,0.14) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 50%, rgba(34,201,138,0.05) 0%, transparent 70%);
+    }
+
+    .stars-bg {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+    }
+    .star {
+      position: absolute; border-radius: 50%;
+      animation: twinkle linear infinite;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.15; transform: scale(1); }
+      50%       { opacity: 0.8;  transform: scale(1.4); }
+    }
+
+    /* Floating notes */
+    .note-float {
+      position: fixed; font-size: 20px; opacity: 0.15; pointer-events: none;
+      animation: floatnote linear infinite; z-index: 0;
+    }
+    @keyframes floatnote {
+      0%   { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+      10%  { opacity: 0.15; }
+      90%  { opacity: 0.15; }
+      100% { transform: translateY(-10vh) rotate(30deg); opacity: 0; }
+    }
+
+    .app {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 2rem 1.2rem;
+      position: relative; z-index: 1;
+    }
+
+    /* Pages */
+    .page {
+      display: none; width: 100%; max-width: 540px;
+      flex-direction: column; align-items: center; gap: 1.4rem;
+      position: relative; z-index: 2;
+      animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1);
+    }
+    .page.active { display: flex; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 30px; font-weight: 400;
+      color: #F0EFF8; text-align: center; line-height: 1.38;
+    }
+    h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 23px; font-weight: 400;
+      color: #F0EFF8; text-align: center;
+    }
+    p {
+      font-size: 15px; color: var(--text-sub);
+      text-align: center; line-height: 1.8;
+    }
+
+    .emoji-big { font-size: 56px; line-height: 1; }
+
+    .tag {
+      font-size: 12px; font-weight: 600; letter-spacing: 0.05em;
+      padding: 5px 16px; border-radius: 99px;
+      background: rgba(91,107,248,0.18); color: #9BA8FF;
+      border: 1px solid rgba(91,107,248,0.3);
+    }
+    .warning-pill {
+      font-size: 12px; font-weight: 600;
+      background: var(--yellow-bg); color: var(--yellow-txt);
+      padding: 6px 16px; border-radius: 99px;
+      border: 1px solid var(--yellow-bd);
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 13px 32px; border-radius: 99px;
+      font-family: 'Quicksand', sans-serif;
+      font-size: 15px; font-weight: 600;
+      cursor: pointer; border: 1.5px solid;
+      transition: transform 0.12s, box-shadow 0.15s;
+    }
+    .btn:active { transform: scale(0.95); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--indigo), var(--rose));
+      color: #fff; border-color: transparent;
+      box-shadow: 0 4px 24px rgba(91,107,248,0.35);
+    }
+    .btn-primary:hover { box-shadow: 0 6px 32px rgba(232,82,122,0.4); transform: translateY(-1px); }
+
+    .btn-yes {
+      background: linear-gradient(135deg, var(--green), #1BA876);
+      color: #fff; border-color: transparent;
+      font-size: 17px; padding: 15px 44px;
+      box-shadow: 0 4px 20px rgba(34,201,138,0.3);
+    }
+    .btn-yes:hover { box-shadow: 0 6px 28px rgba(34,201,138,0.45); }
+
+    .btn-no {
+      background: var(--red); color: #fff; border-color: var(--red);
+      font-size: 17px; padding: 15px 44px;
+      box-shadow: 0 4px 20px rgba(232,69,69,0.3);
+      cursor: pointer;
+      font-family: 'Quicksand', sans-serif; font-weight: 600;
+      border-radius: 99px; border: 1.5px solid var(--red);
+    }
+    /* when escaping */
+    .btn-no.escaping {
+      position: fixed; z-index: 9999;
+      transition: left 0.65s cubic-bezier(0.22,1,0.36,1), top 0.65s cubic-bezier(0.22,1,0.36,1);
+    }
+    .btn-no.escaping.fast { transition: none; }
+
+    .btn-outline {
+      background: transparent; border-color: var(--border); color: var(--text-sub);
+    }
+    .btn-outline:hover { background: rgba(91,107,248,0.1); border-color: var(--indigo); color: #9BA8FF; }
+
+    .btn-row { display: flex; gap: 1rem; align-items: center; justify-content: center; flex-wrap: wrap; }
+
+    /* Cards */
+    .q-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 1.5rem 1.8rem; width: 100%;
+      box-shadow: 0 2px 24px rgba(0,0,0,0.3);
+    }
+    .q-card p { font-size: 17px; color: #F0EFF8; line-height: 1.75; text-align: left; }
+    .q-label {
+      font-size: 10px; color: var(--rose); margin-bottom: 10px;
+      text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700;
+    }
+
+    /* Answer grid */
+    .ans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+    .ans-btn {
+      padding: 13px 10px; border-radius: 14px; font-size: 14px; font-weight: 500;
+      cursor: pointer; border: 1.5px solid var(--border);
+      background: var(--card-bg); color: #D0CFEE;
+      transition: border-color 0.2s, background 0.2s, transform 0.1s;
+      text-align: center; line-height: 1.45;
+      font-family: 'Quicksand', sans-serif;
+    }
+    .ans-btn:hover { border-color: var(--rose); background: rgba(232,82,122,0.1); transform: translateY(-1px); }
+    .ans-btn.chosen { background: rgba(91,107,248,0.15); border-color: var(--indigo); color: #C0C8FF; font-weight: 600; }
+    .ans-btn:disabled { cursor: default; transform: none; }
+
+    /* Reaction */
+    .reaction-box {
+      background: linear-gradient(135deg, rgba(91,107,248,0.12), rgba(232,82,122,0.08));
+      border: 1px solid rgba(91,107,248,0.25);
+      border-radius: 14px;
+      padding: 1rem 1.2rem; width: 100%; text-align: center;
+      font-size: 14px; color: #C0C8FF; line-height: 1.7;
+      min-height: 54px; font-style: italic;
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      width: 100%; height: 4px;
+      background: var(--border); border-radius: 99px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; background: linear-gradient(90deg, var(--indigo), var(--rose));
+      border-radius: 99px; transition: width 0.4s ease;
+    }
+
+    /* Piano */
+    .piano-wrap {
+      width: 100%; display: flex; flex-direction: column; align-items: center; gap: 1.2rem;
+    }
+    .piano-keys {
+      display: flex; gap: 6px; align-items: flex-end; justify-content: center;
+      padding: 1rem 0.5rem 0.5rem;
+    }
+    .pkey {
+      width: 48px; height: 130px; border-radius: 8px 8px 12px 12px;
+      cursor: pointer; border: none; outline: none;
+      display: flex; align-items: flex-end; justify-content: center;
+      padding-bottom: 10px; font-size: 18px;
+      transition: transform 0.08s, box-shadow 0.08s, filter 0.08s;
+      user-select: none; position: relative;
+      box-shadow: 0 6px 0 rgba(0,0,0,0.4), 0 8px 16px rgba(0,0,0,0.3);
+    }
+    .pkey:active, .pkey.pressed {
+      transform: translateY(4px) scale(0.97);
+      box-shadow: 0 2px 0 rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.3);
+      filter: brightness(1.3);
+    }
+    .pkey-0 { background: linear-gradient(180deg, #E8527A, #C03060); }
+    .pkey-1 { background: linear-gradient(180deg, #F0826A, #C85A3A); }
+    .pkey-2 { background: linear-gradient(180deg, #F5B84A, #C88A20); }
+    .pkey-3 { background: linear-gradient(180deg, #6BD48A, #3A9A5A); }
+    .pkey-4 { background: linear-gradient(180deg, #5B6BF8, #3A4BD4); }
+    .pkey-5 { background: linear-gradient(180deg, #8A6BF8, #6A4BD4); }
+    .pkey-6 { background: linear-gradient(180deg, #F06BCC, #C03A9A); }
+    .pkey-7 { background: linear-gradient(180deg, #E8527A, #8A1540); }
+
+    .reason-card {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.2rem 1.5rem; width: 100%;
+      text-align: center; min-height: 80px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif; font-size: 16px;
+      color: #F0EFF8; font-style: italic; line-height: 1.7;
+      transition: opacity 0.3s;
+      box-shadow: 0 2px 24px rgba(0,0,0,0.3);
+    }
+    .piano-hint { font-size: 12px; color: var(--text-sub); letter-spacing: 0.04em; }
+    .piano-counter {
+      font-size: 13px; color: var(--rose); font-weight: 600; letter-spacing: 0.05em;
+      min-height: 20px;
+    }
+
+    /* Love card */
+    .love-card {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 18px; padding: 1.8rem 2rem; width: 100%; text-align: center;
+      line-height: 2; box-shadow: 0 2px 24px rgba(0,0,0,0.3);
+    }
+    .love-card p { font-family: 'Playfair Display', serif; font-size: 17px; color: #F0EFF8; font-style: italic; }
+
+    .highlight-box {
+      background: linear-gradient(135deg, rgba(91,107,248,0.15), rgba(232,82,122,0.1));
+      border: 1px solid rgba(91,107,248,0.25);
+      border-radius: 18px;
+      padding: 1.4rem 1.6rem; width: 100%; text-align: center;
+    }
+    .score-big { font-family: 'Playfair Display', serif; font-size: 44px; color: var(--rose); }
+
+    .tease-msg { font-size: 13px; color: var(--red); min-height: 22px; font-style: italic; }
+
+    /* Sheets saved banner */
+    .saved-banner {
+      font-size: 12px; color: var(--green);
+      background: rgba(34,201,138,0.1); border: 1px solid rgba(34,201,138,0.25);
+      border-radius: 99px; padding: 4px 14px;
+      display: none;
+    }
+    .saved-banner.show { display: inline-block; }
+
+    /* Song lyric teaser */
+    .song-card {
+      background: linear-gradient(135deg, rgba(232,82,122,0.12), rgba(91,107,248,0.1));
+      border: 1px solid rgba(232,82,122,0.3);
+      border-radius: 18px; padding: 1.4rem 1.8rem; width: 100%;
+      text-align: center;
+    }
+    .song-card p { color: #F0B8CC; font-style: italic; font-size: 15px; line-height: 1.9; }
+    .song-label { font-size: 10px; color: var(--rose); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; margin-bottom: 8px; }
+
+    /* Curly hair note */
+    .curly-note {
+      font-size: 13px; color: #B0AECC; font-style: italic;
+      background: rgba(255,255,255,0.04); border-radius: 12px;
+      padding: 0.8rem 1rem; width: 100%; text-align: center; line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Starfield -->
+<div class="stars-bg" id="stars-bg"></div>
+
+<!-- Floating notes -->
+<span class="note-float" style="left:4%;animation-duration:9s;animation-delay:0s;">♩</span>
+<span class="note-float" style="left:14%;animation-duration:12s;animation-delay:2s;">♪</span>
+<span class="note-float" style="left:27%;animation-duration:7.5s;animation-delay:1s;">♫</span>
+<span class="note-float" style="left:42%;animation-duration:14s;animation-delay:3.5s;">𝄞</span>
+<span class="note-float" style="left:57%;animation-duration:10s;animation-delay:0.5s;">♬</span>
+<span class="note-float" style="left:70%;animation-duration:11s;animation-delay:4s;">♩</span>
+<span class="note-float" style="left:83%;animation-duration:8s;animation-delay:1.5s;">♪</span>
+<span class="note-float" style="left:93%;animation-duration:13s;animation-delay:2.5s;">♫</span>
+
+<div class="app" id="app">
+
+  <!-- PAGE 0: Welcome -->
+  <div class="page active" id="page-0">
+    <div class="emoji-big">🎶</div>
+    <h1>Hello Mr Ganesh Murali Iyer,<br>this one's for you</h1>
+    <p>My piece of Art,<br>Hehehe. 💜</p>
+    <div class="tag">made with looootttssss of love</div>
+    <button class="btn btn-primary" onclick="goTo(1)">Open 🎁</button>
+  </div>
+
+  <!-- PAGE 1: Do you love me -->
+  <div class="page" id="page-1">
+    <div class="emoji-big">🥁</div>
+    <h1>Before anything else </h1>
+    <h2>Do you love me?</h2>
+    <p>Think carefully. Your mridangam is watching.<br>So am I. 👀</p>
+    <div class="warning-pill">⚠️ Try your luck pressing No</div>
+    <div class="btn-row" style="margin-top:0.2rem;">
+      <button class="btn btn-yes" onclick="goTo(2)">Yes, always 💚</button>
+      <button class="btn btn-no" id="btn-no" onmouseover="runAway(event)" onclick="runAway(event)">No 🙃</button>
+    </div>
+    <p class="tease-msg" id="tease-msg"></p>
+  </div>
+
+  <!-- PAGE 2: Good answer -->
+  <div class="page" id="page-2">
+    <div class="emoji-big">💚</div>
+    <h1>Corrreeeectt. 😌</h1>
+    <p>Now I have some questions for you.<br>Be very honest. I already know the answers. 😇</p>
+    <button class="btn btn-primary" onclick="startQuestions()">Let's go →</button>
+  </div>
+
+  <!-- PAGE 3: Questions -->
+  <div class="page" id="page-3">
+    <div class="progress-bar"><div class="progress-fill" id="q-progress" style="width:0%"></div></div>
+    <p id="q-num" style="font-size:12px; letter-spacing:0.05em; color:var(--text-sub);"></p>
+    <div class="emoji-big" id="q-emoji">💬</div>
+    <div class="q-card">
+      <p class="q-label" id="q-label"></p>
+      <p id="q-text">—</p>
+    </div>
+    <div class="ans-grid" id="ans-grid"></div>
+    <div class="reaction-box" id="reaction-box"></div>
+  </div>
+
+  <!-- PAGE 4: Piano of feelings -->
+  <div class="page" id="page-4">
+    <div class="emoji-big">🎹</div>
+    <h1>A piano just for you</h1>
+    <p>Each key holds a reason I love you.<br>Play them all. 💜</p>
+    <div class="piano-wrap">
+      <div class="piano-keys" id="piano-keys">
+        <!-- keys injected by JS -->
+      </div>
+      <div class="reason-card" id="reason-card">Tap any key to begin ✨</div>
+      <p class="piano-counter" id="piano-counter"></p>
+      <p class="piano-hint">play all 8 keys to continue →</p>
+    </div>
+  </div>
+
+  <!-- PAGE 5: Final -->
+  <div class="page" id="page-5">
+    <div class="emoji-big">💜</div>
+    <h1>That's a wrap, sir</h1>
+    <div class="love-card">
+      <p>You are my favourite rhythm,<br>my most beautiful raga,<br>and the song I never want to end. 🎶</p>
+    </div>
+    <div class="highlight-box">
+      <p style="font-weight:700; font-size:12px; color:var(--rose); margin-bottom:4px; letter-spacing:0.1em; text-transform:uppercase;">Notes played 🎹</p>
+      <div class="score-big" id="final-taps">8 / 8</div>
+      <p style="color:#B0AECC; font-size:14px; margin-top:4px;">Every single reason. All of them. 💜</p>
+    </div>
+    <div class="curly-note">
+      ps. those curls that fall over your forehead<br>while you're lost in your music? 🌀<br>my absolute favourite thing in the world.
+    </div>
+    <button class="btn btn-outline" onclick="restart()">From the top 🔁</button>
+  </div>
+
+</div>
+
+
+
+<script>
+  // ─── GOOGLE SHEETS CONFIG ─────────────────────────────────────────────────
+  // After you deploy your Apps Script web app, paste the URL below.
+  // Instructions are in the README section at the bottom of this file.
+  const SHEET_URL = "https://script.google.com/macros/s/AKfycbxeOVB7ALU2K6FYvTpg7gRGD5fN5xhV_b8zioQei4b302z250FmIn_Em-VgRP9zaJQ/exec";
+  // ──────────────────────────────────────────────────────────────────────────
+
+  // Generate stars
+  const starsBg = document.getElementById('stars-bg');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2.5 + 1;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%; top:${Math.random()*100}%;
+      background: ${['#FFD700','#FF6B9D','#6BCDFF','#ffffff'][Math.floor(Math.random()*4)]};
+      animation-duration: ${2 + Math.random()*4}s;
+      animation-delay: ${Math.random()*4}s;
+    `;
+    starsBg.appendChild(s);
+  }
+
+  const questions = [
+    {
+      emoji: "💭",
+      label: "first impressions, be honest",
+      q: "What was your very first thought when you saw me for the first time?",
+      type: "text",
+    },
+    {
+      emoji: "🎵",
+      label: "musically",
+      q: "If our relationship was a raga, which vibe would it be?",
+      opts: ["Yaman : dreamy & romantic 🌙", "Bhairavi : deep & emotional 💜", "Bhairav : calm morning energy ☕", "Darbari : intense & late night 🌃"],
+      reactions: [
+        "Moonlight and melodies. 🌙",
+        "Okay this got deep fast. I love it. 💜",
+        "Cozy, warm, no drama. Goals honestly. ☕",
+        "2am conversations and too many feelings. 🌃"
+      ]
+    },
+    {
+      emoji: "🔥",
+      label: "answer carefully",
+      q: "What do you think I think about when you're deep in practice session?",
+      opts: ["How talented he is 🎶", "How hot he looks focused 🥵", "Will he ever stop practicing 😭", "Definitely all of the above"],
+      reactions: [
+        "True but the other options are also... very true 😇",
+        "...no comment. Moving on. 🫠",
+        "I said what I said. Hours, Sir. HOURS. 😭",
+        "Honest. Accurate. U know it. 👏"
+      ]
+    },
+    {
+    emoji: "🚨",
+    label: "emergency protocol",
+    q: "What would you do if I told you I'm standing right outside your building?",
+    opts: ["Run down in 10 seconds flat 🏃", "Pretend I didn't see this text 😭", "Panic, trip, still come down 💀", "Already at the door, how did you know 👀"],
+    reactions: [
+        "That's the only correct answer. Run. 💜",
+        "I will actually come up and knock 🚪😤",
+        "The tripping part is so you 😂💜",
+        "...I'm not outside. Or am I. 👀"
+    ]
+    },
+    {
+      emoji: "🍄",
+      label: "mushroom check-in",
+      q: "On a scale of 🍄 to 🍄🍄🍄 how do you feel about the cute little mushroom?",
+      opts: ["Adorable little guy 🍄", "Small but mighty 💪🍄", "Perfectly sized, no notes ✨", "Deserves its own raga 🎵🍄"],
+      reactions: [
+        "MY Adorable little guy 🍄. 🍄💜",
+        "The CONFIDENCE!! I love it so much. 💪😂",
+        "Very diplomatic. Hmmmm 💜",
+        "Raga Mushroom in D minor. We're doing this. 🎵🍄😂"
+      ]
+    },
+    {
+      emoji: "🍌",
+      label: "activity log",
+      q: "Be honest. How many times this week?",
+      opts: ["once, I'm normal 🙂", "okay 2-3 times", "we don't count anymore 💀", "the mushroom needed attention 🍄"],
+      reactions: [
+        "sure you are. sure. 😭",
+        "per day or per week, be specific 👀",
+        "I KNEW IT. the mushroom is overworked 🍄💀",
+        "I am RIGHT HERE. hello?? 🙋‍♀️😭"
+      ]
+    },
+    {
+    emoji: "🔥",
+    label: "location scouting",
+    q: "Okay but if not bedroom then where are we making out?",
+    opts: ["Shower / bathtub 🚿", "Camping tent, rain outside ⛺🌧️", "Backseat of a car at night 🚗", "Rooftop, city lights below 🌃"],
+    reactions: [
+        "WET and WILD. I love it ",
+        "Rain sounds, no wifi, just us. ⛺💜",
+        "Windows fogging up... OMGGG 🚗😏",
+        "City lights and you. I'd never look at the view. 🌃💜"
+    ]
+    },
+    {
+      emoji: "💌",
+      label: "I miss U",
+      q: "How much do you miss me when we're apart?",
+      opts: ["Every single second 🥺", "Like a song stuck in my head 🎵", "More than words honestly 💜", "I don't admit this to anyone else 🤫"],
+      reactions: [
+        "Every second of every day, sir. Same. 🥺💜",
+        "The cutest answer you could give. 🎵💜",
+        "More than words. That's everything. 💜",
+        "I'm the only one who gets to know. I love that. 🤫💜"
+      ]
+    },
+    {
+      emoji: "🌙",
+      label: "us in your thoughts",
+      q: "When you imagine us, really imagine us, what does it look like?",
+      type: "text",
+    }
+  ];
+
+  const pianoReasons = [
+    "that voice. the normal one is already a lot. but the sleepy one?? completely unhinged. illegal even. 😮‍💨",
+    "you care about the world and have actual opinions and can hold a conversation and I find that so attractive it's a problem. 🗳️🔥",
+    "The look on your face when a performance goes good; pure joy. I live for that look. ✨",
+    "the way you don't even notice how good you look when you're mid-performance.",
+    "the mushroom. obviously. had to be said. 🍄💜",
+    "you make me feel like the main character of something really really beautiful. 🎬",
+    "I could watch your hands play for hours and never get bored. those hands man. THOSE HANDS. 🙌🔥",
+    "idk I just like you a lot. annoyingly, embarrassingly, a lot. 💀💜"
+  ];
+  const pianoEmojis = ["🌀","🎵","✨","💜","🎶","🥺","🌙","💜"];
+  const pianoPlayed = new Set();
+
+  function initPiano() {
+    pianoPlayed.clear();
+    document.getElementById('reason-card').textContent = 'Tap any key to begin ✨';
+    document.getElementById('piano-counter').textContent = '';
+    const container = document.getElementById('piano-keys');
+    container.innerHTML = '';
+    for (let i = 0; i < 8; i++) {
+      const key = document.createElement('button');
+      key.className = `pkey pkey-${i}`;
+      key.dataset.idx = i;
+      key.textContent = pianoEmojis[i];
+      key.onclick = () => pressKey(i, key);
+      container.appendChild(key);
+    }
+  }
+
+  // Simple pentatonic-ish frequencies
+  const noteFreqs = [261.6, 293.7, 329.6, 392.0, 440.0, 523.3, 587.3, 659.3];
+  let audioCtx = null;
+
+  function playNote(freq) {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.4);
+      osc.start(); osc.stop(audioCtx.currentTime + 1.4);
+    } catch(e) {}
+  }
+
+  function pressKey(idx, keyEl) {
+    playNote(noteFreqs[idx]);
+    keyEl.classList.add('pressed');
+    setTimeout(() => keyEl.classList.remove('pressed'), 180);
+
+    const card = document.getElementById('reason-card');
+    card.style.opacity = 0;
+    setTimeout(() => {
+      card.textContent = pianoReasons[idx];
+      card.style.opacity = 1;
+    }, 250);
+
+    pianoPlayed.add(idx);
+    const count = pianoPlayed.size;
+    const counter = document.getElementById('piano-counter');
+    counter.textContent = count === 8 ? '🎹 all 8 reasons played 💜' : `${count} of 8 played`;
+
+    if (count === 8) {
+      setTimeout(() => goTo(5), 1800);
+    }
+  }
+
+  let currentQ = 0;
+  let noCount = 0;
+  const answers = [];
+
+  function goTo(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    if (page === 1) {
+      noCount = 0;
+      document.getElementById('tease-msg').textContent = '';
+      placeNoBtn();
+    }
+    if (page === 4) initPiano();
+  }
+
+  function placeNoBtn() {
+    // Reset: put back inline, remove escaping classes
+    const btn = document.getElementById('btn-no');
+    btn.classList.remove('escaping', 'fast');
+    btn.style.left = '';
+    btn.style.top = '';
+    btn.style.position = '';
+  }
+
+  function runAway(e) {
+    if (e) e.preventDefault();
+    noCount++;
+    const btn = document.getElementById('btn-no');
+
+    if (!btn.classList.contains('escaping')) {
+      // First escape: get current position, go fixed, then animate away slowly
+      const rect = btn.getBoundingClientRect();
+      btn.style.left = rect.left + 'px';
+      btn.style.top  = rect.top + 'px';
+      btn.style.width = rect.width + 'px';
+      btn.classList.add('escaping');
+      // Force reflow so transition fires
+      btn.getBoundingClientRect();
+    } else if (noCount > 2) {
+      btn.classList.add('fast');
+    }
+
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    btn.style.left = (80 + Math.random() * Math.max(W - 200, 10)) + 'px';
+    btn.style.top  = (80 + Math.random() * Math.max(H - 180, 10)) + 'px';
+
+    const msgs = [
+      "Nope! Try harder 🏃",
+      "Too slow, maestro! 😄",
+      "Even the ghatam is faster 🎵",
+      "Faster than a 16-beat taal 🥁",
+      "The No button has left the chat 🎶",
+      "Even the mushroom is judging you 🍄",
+      "Just say yes already!! 💚",
+      "It will literally never stop running 😂",
+    ];
+    document.getElementById('tease-msg').textContent = msgs[Math.min(noCount - 1, msgs.length - 1)];
+  }
+
+  function startQuestions() {
+    currentQ = 0;
+    answers.length = 0;
+    goTo(3);
+    renderQ();
+  }
+
+  function renderQ() {
+    const q = questions[currentQ];
+    const total = questions.length;
+    document.getElementById('q-progress').style.width = ((currentQ / total) * 100) + '%';
+    document.getElementById('q-num').textContent = 'question ' + (currentQ + 1) + ' of ' + total;
+    document.getElementById('q-emoji').textContent = q.emoji;
+    document.getElementById('q-label').textContent = q.label;
+    document.getElementById('q-text').textContent = q.q;
+    document.getElementById('reaction-box').textContent = '';
+
+    const grid = document.getElementById('ans-grid');
+    grid.innerHTML = '';
+    if (q.type === 'text') {
+    // TEXT INPUT mode
+    grid.style.gridTemplateColumns = '1fr';
+    const textarea = document.createElement('textarea');
+    textarea.placeholder = 'Type your answer... 💜';
+    textarea.rows = 3;
+    textarea.style.cssText = `
+      width:100%; padding:14px 16px; border-radius:14px; font-size:15px;
+      font-family:'Quicksand',sans-serif; resize:none; outline:none;
+      background:var(--card-bg); color:#F0EFF8;
+      border:1.5px solid var(--border); line-height:1.6;
+    `;
+    const submitBtn = document.createElement('button');
+    submitBtn.className = 'btn btn-primary';
+    submitBtn.textContent = 'Send 💜';
+    submitBtn.style.marginTop = '8px';
+    submitBtn.onclick = () => {
+      const val = textarea.value.trim();
+      if (!val) return;
+      document.getElementById('reaction-box').textContent = '💜 saving that forever...';
+      answers.push({ question: q.q, answer: val });
+      saveToSheets({ question: q.q, answer: val });
+      textarea.disabled = true;
+      submitBtn.disabled = true;
+      setTimeout(() => {
+        currentQ++;
+        if (currentQ < questions.length) { renderQ(); } else { goTo(4); }
+      }, 1800);
+    };
+    grid.appendChild(textarea);
+    grid.appendChild(submitBtn);
+  } else {
+    // existing MCQ code
+    grid.style.gridTemplateColumns = '1fr 1fr';
+    q.opts.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'ans-btn';
+      btn.textContent = opt;
+      btn.onclick = () => pick(i, btn);
+      grid.appendChild(btn);
+    });
+  }
+  }
+
+  function pick(idx, btn) {
+    document.querySelectorAll('.ans-btn').forEach(b => { b.disabled = true; });
+    btn.classList.add('chosen');
+    const q = questions[currentQ];
+    document.getElementById('reaction-box').textContent = q.reactions[idx];
+
+    const answer = { question: q.q, answer: q.opts[idx] };
+    answers.push(answer);
+    saveToSheets(answer);
+
+    setTimeout(() => {
+      currentQ++;
+      if (currentQ < questions.length) { renderQ(); } else { goTo(4); }
+    }, 2100);
+  }
+
+  async function saveToSheets(entry) {
+    if (!SHEET_URL || SHEET_URL === "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE") return;
+    try {
+      await fetch(SHEET_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          timestamp: new Date().toLocaleString(),
+          question: entry.question,
+          answer: entry.answer
+        })
+      });
+      document.getElementById('saved-banner').classList.add('show');
+    } catch (err) {
+      console.log("Sheets save failed:", err);
+    }
+  }
+
+  function restart() { noCount = 0; goTo(0); }
+
+  goTo(0);
+</script>
+
+<!--
+════════════════════════════════════════════════════════════════
+  HOW TO CONNECT GOOGLE SHEETS (free, 5 minutes)
+════════════════════════════════════════════════════════════════
+
+Your sheet is already created: "Ganesh's Answers 💜"
+Link: https://docs.google.com/spreadsheets/d/1u6_eYc8NxH836F93WWR36tvfpsuFxnGf_U9EUYpPkLw/edit
+
+STEP 1 — Open that sheet, then go to:
+  Extensions → Apps Script
+
+STEP 2 — Delete any existing code and paste this:
+
+  function doPost(e) {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var data  = JSON.parse(e.postData.contents);
+    sheet.appendRow([data.timestamp, data.question, data.answer]);
+    return ContentService.createTextOutput("OK");
+  }
+
+STEP 3 — Click "Deploy" → "New deployment"
+  - Type: Web app
+  - Execute as: Me
+  - Who has access: Anyone
+  → Click Deploy → Copy the web app URL
+
+STEP 4 — Paste that URL here in index.html:
+  const SHEET_URL = "paste-it-here";
+
+STEP 5 — Push to GitHub. Done! 💜
+════════════════════════════════════════════════════════════════
+Deployment ID: AKfycbxeOVB7ALU2K6FYvTpg7gRGD5fN5xhV_b8zioQei4b302z250FmIn_Em-VgRP9zaJQ
+URL: https://script.google.com/macros/s/AKfycbxeOVB7ALU2K6FYvTpg7gRGD5fN5xhV_b8zioQei4b302z250FmIn_Em-VgRP9zaJQ/exec
+-->
+</body>
+</html>
